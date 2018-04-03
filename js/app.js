@@ -12,9 +12,11 @@ var Location = function(data) {
   this.location = ko.observable(data.location);
 };
 
+var selectedMarker = {};
+
 var ViewModel = function() {
   var self = this;
-  //indicator of the status of the list
+  //indicator of the status of the list, 0:hide, 1:show
   var showList = 0;
 
   this.locationList = ko.observableArray([]);
@@ -36,6 +38,22 @@ var ViewModel = function() {
       showList = 0;
     }
   }
+
+  self.places = ko.observableArray();
+
+   // The current item will be passed as the first parameter, so we know which place to remove
+   self.removePlace = function(place) {
+       self.places.push(place)
+   }
+
+  this.selectedKO = ko.observable();
+  //return the selected location
+  this.selectMarker = function(chosenMarker) {
+
+    self.selectedKO(chosenMarker);
+    selectedMarker.title = self.selectedKO().title();
+    selectedMarker.location = self.selectedKO().location();
+  }
 };
 
 //Google Map API Handling
@@ -47,6 +65,7 @@ function initMap() {
     center: {lat: 22.396428, lng: 114.109497},
     zoom: 11
   });
+
 //getting the list of google map
   var markers = [];
   for (var i = 0; i < initialLocations.length; i++) {
@@ -100,6 +119,14 @@ function initMap() {
       markers[i].setMap(null);
     }
   };
+
+  // function selectingPlace() {
+  //   for (var i = 0; i < markers.length; i++) {
+  //     markers[i].setMap(null);
+  //   }
+  //
+  // }
+
 };
 
 ko.applyBindings(new ViewModel());

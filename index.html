@@ -13,7 +13,7 @@
       <input id="show-listings" type="button" value="Show Listings" data-bind="click: showLocations">
       <input id="hide-listings" type="button" value="Hide Listings" data-bind="click: hideLocations">
       <ul class="locations" data-bind="foreach: locationList">
-        <li data-bind="text: title"></li>
+        <li data-bind="text: title, attr: {id: 'place' + $index()}, click: $parent.selectMarker"></li>
       </ul>
     </div>
   </div>
