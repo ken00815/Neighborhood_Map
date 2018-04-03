@@ -1,10 +1,9 @@
 var initialLocations = [
-          {title: 'Lucky Plaza', location: {lat: 22.382905,lng: 114.190425}, selected: 0},
-          {title: 'Sino Centre', location: {lat: 22.316058,lng: 114.170363}, selected: 0},
-          {title: 'Ho King Commercial Centre', location: {lat: 22.315983,lng: 114.171942}, selected: 0},
-          {title: 'Golden Computer Arcade', location: {lat: 22.331781,lng: 114.162291}, selected: 0},
-          {title: 'Wan Chai Computer Centre', location: {lat: 22.277223,lng: 114.173122}, selected: 0},
-          {title: 'Tsuen Fung Centre Shopping Arcade', location: {lat: 22.372112,lng: 114.119317}, selected: 0}
+          {title: 'Langham Place, Hong Kong', location: {lat: 22.317914,lng: 114.168744}, selected: 0},
+          {title: 'Mong Kok Computer Centre', location: {lat: 22.318543,lng: 114.171082}, selected: 0},
+          {title: 'Golden Shopping Centre', location: {lat: 22.331781,lng: 114.162291}, selected: 0},
+          {title: 'New Town Plaza', location: {lat: 22.382208,lng: 114.188184}, selected: 0},
+          {title: 'Tsuen Wan Plaza', location: {lat: 22.370606,lng: 114.1107}, selected: 0}
         ];
 
 var Location = function(data) {
@@ -44,7 +43,7 @@ var ViewModel = function() {
 
    // The current item will be passed as the first parameter, so we know which place to remove
    self.removePlace = function(place) {
-       self.places.push(place)
+       self.places.push(place);
    }
 
   this.selectedKO = ko.observable();
@@ -78,13 +77,13 @@ ko.applyBindings(new ViewModel());
 var map;
 function initMap() {
   var largeInfowindow = new google.maps.InfoWindow();
-//the backgroud map from google
+  //the backgroud map from google
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 22.396428, lng: 114.109497},
     zoom: 11
   });
 
-//getting the list of google map
+  //getting the list of google map
   var markers = [];
   for (var i = 0; i < initialLocations.length; i++) {
     // Get the position from the location array.
@@ -114,7 +113,29 @@ function initMap() {
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker != marker) {
       infowindow.marker = marker;
-      infowindow.setContent('<div>' + marker.title + '</div>');
+
+    //wikipedia api
+    var remoteUrlWithOrigin = 'https://en.wikipedia.org/w/api.php?format=json&action=opensearch&search=' + marker.title + '&callback=?';
+
+    //show error message after loading for 8s
+    var wikiRequestTimout = setTimeout(function() {
+      infowindow.setContent('<div>' + marker.title + '</div><div>Failed to search in Wikipedia.</div>');
+    }, 8000);
+
+    $.ajax( {
+        url: remoteUrlWithOrigin,
+        dataType: 'jsonp',
+        type: 'GET',
+        success: function(data) {
+        // do something with data
+            // console.log(data);
+        infowindow.setContent('<div>' + marker.title + '</div><a href="' +data[3][0] + '">' + data[1][0] +'</a><p>'+data[2][0]+'</p>');
+
+            //clear the timeout message if the AJAX runs successfully
+            clearTimeout(wikiRequestTimout);
+        }
+    } );
+
       infowindow.open(map, marker);
       // Make sure the marker property is cleared if the infowindow is closed.
       infowindow.addListener('closeclick', function() {
