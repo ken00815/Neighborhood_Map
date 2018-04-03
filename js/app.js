@@ -72,6 +72,8 @@ var ViewModel = function() {
   }
 };
 
+ko.applyBindings(new ViewModel());
+
 //Google Map API Handling
 var map;
 function initMap() {
@@ -107,9 +109,6 @@ function initMap() {
   document.getElementById('show-listings').addEventListener('click', showListings);
   document.getElementById('hide-listings').addEventListener('click', hideListings);
 
-  for(var i=0; i<initialLocations.length; i++) {
-    document.getElementById('place'+i).addEventListener('click', selectingPlace);
-  }
 
   function populateInfoWindow(marker, infowindow) {
     // Check to make sure the infowindow is not already opened on this marker.
@@ -125,6 +124,7 @@ function initMap() {
   }
   // This function will loop through the markers array and display them all.
   function showListings() {
+    marker.setMap(null);
     var bounds = new google.maps.LatLngBounds();
     // Extend the boundaries of the map for each marker and display the marker
     for (var i = 0; i < markers.length; i++) {
@@ -132,19 +132,39 @@ function initMap() {
       bounds.extend(markers[i].position);
     }
     map.fitBounds(bounds);
+
+    for(var i=0; i<initialLocations.length; i++) {
+      document.getElementById('place'+i).addEventListener('click', selectingPlace);
+    }
   };
 
   // This function will loop through the listings and hide them all.
   function hideListings() {
+    marker.setMap(null);
     for (var i = 0; i < markers.length; i++) {
       markers[i].setMap(null);
     }
   };
 
   function selectingPlace() {
-    
-  }
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setMap(null);
+    }
 
+    marker.setMap(null);
+
+    marker = new google.maps.Marker({
+         animation: google.maps.Animation.BOUNCE,
+         position: selectedMarker.location,
+         // on the map, and give it your own title!
+         title: selectedMarker.title,
+         icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
+       });
+
+       marker.setMap(map);
+
+    marker.addListener('click', function() {
+      populateInfoWindow(this, largeInfowindow);
+    });
+  };
 };
-
-ko.applyBindings(new ViewModel());
