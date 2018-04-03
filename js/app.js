@@ -167,6 +167,7 @@ function initMap() {
     }
   };
 
+//filter the selected place from the list
   function selectingPlace() {
     for (var i = 0; i < markers.length; i++) {
       markers[i].setMap(null);
