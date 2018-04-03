@@ -1,15 +1,16 @@
 var initialLocations = [
-          {title: 'Lucky Plaza', location: {lat: 22.382905,lng: 114.190425}},
-          {title: 'Sino Centre', location: {lat: 22.316058,lng: 114.170363}},
-          {title: 'Ho King Commercial Centre', location: {lat: 22.315983,lng: 114.171942}},
-          {title: 'Golden Computer Arcade', location: {lat: 22.331781,lng: 114.162291}},
-          {title: 'Wan Chai Computer Centre', location: {lat: 22.277223,lng: 114.173122}},
-          {title: 'Tsuen Fung Centre Shopping Arcade', location: {lat: 22.372112,lng: 114.119317}}
+          {title: 'Lucky Plaza', location: {lat: 22.382905,lng: 114.190425}, selected: 0},
+          {title: 'Sino Centre', location: {lat: 22.316058,lng: 114.170363}, selected: 0},
+          {title: 'Ho King Commercial Centre', location: {lat: 22.315983,lng: 114.171942}, selected: 0},
+          {title: 'Golden Computer Arcade', location: {lat: 22.331781,lng: 114.162291}, selected: 0},
+          {title: 'Wan Chai Computer Centre', location: {lat: 22.277223,lng: 114.173122}, selected: 0},
+          {title: 'Tsuen Fung Centre Shopping Arcade', location: {lat: 22.372112,lng: 114.119317}, selected: 0}
         ];
 
 var Location = function(data) {
   this.title = ko.observable(data.title);
   this.location = ko.observable(data.location);
+  this.selected = ko.observable(data.selected);
 };
 
 var selectedMarker = {};
@@ -49,10 +50,25 @@ var ViewModel = function() {
   this.selectedKO = ko.observable();
   //return the selected location
   this.selectMarker = function(chosenMarker) {
+    //remove the flag that selected place
+    for (var i=0; i<initialLocations.length; i++){
+        initialLocations[i].selected = 0;
+        document.getElementById('place'+i).removeAttribute("class");
+    }
+
+    //set a flag representing "selected"
+    for (var i=0; i<initialLocations.length; i++){
+      if(chosenMarker.title() === initialLocations[i].title){
+        initialLocations[i].selected = 1;
+        //Text turn red while clicked
+        document.getElementById('place'+i).setAttribute("class","selected");
+      }
+    }
 
     self.selectedKO(chosenMarker);
     selectedMarker.title = self.selectedKO().title();
     selectedMarker.location = self.selectedKO().location();
+
   }
 };
 
@@ -85,10 +101,15 @@ function initMap() {
     marker.addListener('click', function() {
       populateInfoWindow(this, largeInfowindow);
     });
+
   }
 
   document.getElementById('show-listings').addEventListener('click', showListings);
   document.getElementById('hide-listings').addEventListener('click', hideListings);
+
+  for(var i=0; i<initialLocations.length; i++) {
+    document.getElementById('place'+i).addEventListener('click', selectingPlace);
+  }
 
   function populateInfoWindow(marker, infowindow) {
     // Check to make sure the infowindow is not already opened on this marker.
@@ -120,12 +141,9 @@ function initMap() {
     }
   };
 
-  // function selectingPlace() {
-  //   for (var i = 0; i < markers.length; i++) {
-  //     markers[i].setMap(null);
-  //   }
-  //
-  // }
+  function selectingPlace() {
+    
+  }
 
 };
 

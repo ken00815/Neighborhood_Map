@@ -52,3 +52,7 @@ li {
   text-align: left;
   width: 340px;
 }
+
+.selected {
+  color: red;
+}
