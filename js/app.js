@@ -138,6 +138,10 @@ function initMap() {
         markers.push(marker);
         // Create an onclick event to open an infowindow at each marker.
         marker.addListener('click', function() {
+            this.setMap(null);
+            this.animation = google.maps.Animation.BOUNCE;
+            this.icon = 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
+            this.setMap(map);
             populateInfoWindow(this, largeInfowindow);
         });
 
@@ -223,8 +227,6 @@ function initMap() {
 
         marker.setMap(map);
 
-        marker.addListener('click', function() {
-            populateInfoWindow(this, largeInfowindow);
-        });
+        populateInfoWindow(marker, largeInfowindow);
     }
 }
