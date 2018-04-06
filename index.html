@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <base target="_blank">
     <link rel="stylesheet" href="css/style.css">
     <title>Project: Neighborhood Map</title>
 </head>
@@ -12,11 +11,19 @@
   <div class="options-box">
     <h1>Gaming Retail Shops in Hong Kong</h1>
     <div>
-      <input id="show-listings" type="button" value="Show Listings" data-bind="click: showLocations">
-      <input id="hide-listings" type="button" value="Hide Listings" data-bind="click: hideLocations">
-      <ul class="locations" data-bind="foreach: locationList">
+      <input id="show-listings" type="button" value="Show Listings" data-bind="click: openList">
+      <input id="hide-listings" type="button" value="Hide Listings" data-bind="click: closeList">
+
+      <p data-bind="style: {display: changeListStatus() == 0?'none':'block'}">
+        District:
+        <select id="districtMenu" data-bind="options: districtList(), value: currentOptions"></select>
+      </p>
+
+      <div class="listContainer" data-bind="style: {display: changeListStatus() == 0?'none':'block'}">
+      <ul class="locations" data-bind="foreach: newList">
         <li data-bind="text: title, attr: {id: 'place' + $index()}, click: $parent.selectMarker"></li>
       </ul>
+    </div>
     </div>
     <p>Place details are provided by <a href="https://en.wikipedia.org/wiki/Main_Page">Wikipedia</a></p>
   </div>

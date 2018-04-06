@@ -1,10 +1,14 @@
-var initialLocations = [{
+var menuOptions = ['All','Hong Kong Island','Kowloon','New Territories'];
+
+var allLocations = [
+    {
         title: 'Langham Place, Hong Kong',
         location: {
             lat: 22.317914,
             lng: 114.168744
         },
-        selected: 0
+        selected: 0,
+        districtId: 2
     },
     {
         title: 'Mong Kok Computer Centre',
@@ -12,15 +16,17 @@ var initialLocations = [{
             lat: 22.318543,
             lng: 114.171082
         },
-        selected: 0
-    },
+        selected: 0,
+        districtId: 2
+    },    
     {
         title: 'Golden Shopping Centre',
         location: {
             lat: 22.331781,
             lng: 114.162291
         },
-        selected: 0
+        selected: 0,
+        districtId: 2
     },
     {
         title: 'New Town Plaza',
@@ -28,7 +34,54 @@ var initialLocations = [{
             lat: 22.382208,
             lng: 114.188184
         },
-        selected: 0
+        selected: 0,
+        districtId: 3
+    },
+    {
+        title: 'Tsuen Wan Plaza',
+        location: {
+            lat: 22.370606,
+            lng: 114.1107
+        },
+        selected: 0,
+        districtId: 3
+    }
+  ],
+  hkIsland = [],
+  kln = [
+    {
+      title: 'Langham Place, Hong Kong',
+      location: {
+          lat: 22.317914,
+          lng: 114.168744
+      },
+      selected: 0
+    },
+    {
+      title: 'Mong Kok Computer Centre',
+      location: {
+          lat: 22.318543,
+          lng: 114.171082
+      },
+      selected: 0
+    },
+    {
+      title: 'Golden Shopping Centre',
+      location: {
+          lat: 22.331781,
+          lng: 114.162291
+      },
+      selected: 0
+    }
+  ],
+  nt = [
+    {
+      title: 'New Town Plaza',
+      location: {
+          lat: 22.382208,
+          lng: 114.188184
+      },
+      selected: 0
     },
     {
         title: 'Tsuen Wan Plaza',
@@ -38,7 +91,8 @@ var initialLocations = [{
         },
         selected: 0
     }
-];
+  ];
+
 
 var Location = function(data) {
     this.title = ko.observable(data.title);
@@ -46,62 +100,97 @@ var Location = function(data) {
     this.selected = ko.observable(data.selected);
 };
 
-var selectedMarker = {};
+var District = function (data) {
+  this.name = ko.observable(data.name);
+}
 
 var ViewModel = function() {
     var self = this;
+
     //indicator of the status of the list, 0:hide, 1:show
-    var showList = 0;
+    var listStatus = ko.observable(0);
 
-    this.locationList = ko.observableArray([]);
+    //initiate the location list
+    // this.locationList = ko.observableArray([]);
+    //
+    // allLocations.forEach(function(placeItem) {
+    //     self.locationList.push(new Location(placeItem));
+    // });
 
-    //To SHOW the list of the locations
-    this.showLocations = function() {
-        if (showList === 0) {
-            initialLocations.forEach(function(placeItem) {
-                self.locationList.push(new Location(placeItem));
-            });
-            showList = 1;
-        }
+
+    this.districtList = ko.observableArray([]);
+    for (var i=0; i<menuOptions.length; i++){
+      self.districtList().push(menuOptions[i]);
+    }
+
+    this.currentOptions = ko.observableArray();
+
+    this.newList = ko.observableArray();
+
+    this.refreshList = ko.computed(function() {
+      var change = self.currentOptions();
+
+      switch(change){
+        case "All":
+          self.newList.removeAll();
+          allLocations.forEach(function(placeItem) {
+              self.newList.push(new Location(placeItem));
+          });
+          break;
+        case "Kowloon":
+          self.newList.removeAll();
+          kln.forEach(function(placeItem) {
+              self.newList.push(new Location(placeItem));
+          });
+          break;
+        case "Hong Kong Island":
+          self.newList.removeAll();
+          hkIsland.forEach(function(placeItem) {
+              self.newList.push(new Location(placeItem));
+          });
+          break;
+        case "New Territories":
+          self.newList.removeAll();
+          nt.forEach(function(placeItem) {
+              self.newList.push(new Location(placeItem));
+          });
+          break;
+      }
+
+
+    });
+
+
+    this.openList = function(){
+        listStatus(1);
     };
 
-    //To HIDE the list of the locations
-    this.hideLocations = function() {
-        if (showList === 1) {
-            self.locationList.removeAll();
-            showList = 0;
-        }
+    this.closeList = function() {
+      listStatus(0);
     };
 
-    self.places = ko.observableArray();
-
-    // The current item will be passed as the first parameter, so we know which place to remove
-    self.removePlace = function(place) {
-        self.places.push(place);
+    this.changeListStatus = function() {
+      return listStatus();
     };
+
 
     this.selectedKO = ko.observable();
     //return the selected location
     this.selectMarker = function(chosenMarker) {
         //remove the flag that selected place
-        for (var i = 0; i < initialLocations.length; i++) {
-            initialLocations[i].selected = 0;
+        for (var i = 0; i < allLocations.length; i++) {
+            allLocations[i].selected = 0;
             document.getElementById('place' + i).removeAttribute("class");
         }
 
         //set a flag representing "selected"
-        for (i = 0; i < initialLocations.length; i++) {
-            if (chosenMarker.title() === initialLocations[i].title) {
-                initialLocations[i].selected = 1;
+        for (i = 0; i < allLocations.length; i++) {
+            if (chosenMarker.title() === allLocations[i].title) {
+                allLocations[i].selected = 1;
                 //Text turn red while clicked
                 document.getElementById('place' + i).setAttribute("class", "selected");
             }
         }
-
-        self.selectedKO(chosenMarker);
-        selectedMarker.title = self.selectedKO().title();
-        selectedMarker.location = self.selectedKO().location();
-
     };
 };
 
@@ -123,10 +212,10 @@ function initMap() {
 
     //getting the list of google map
     var markers = [];
-    for (var i = 0; i < initialLocations.length; i++) {
+    for (var i = 0; i < allLocations.length; i++) {
         // Get the position from the location array.
-        var position = initialLocations[i].location;
-        var title = initialLocations[i].title;
+        var position = allLocations[i].location;
+        var title = allLocations[i].title;
         // Create a marker per location, and put into markers array.
         var marker = new google.maps.Marker({
             position: position,
@@ -138,11 +227,16 @@ function initMap() {
         markers.push(marker);
         // Create an onclick event to open an infowindow at each marker.
         marker.addListener('click', function() {
-            this.setMap(null);
-            this.animation = google.maps.Animation.BOUNCE;
-            this.icon = 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
-            this.setMap(map);
+
             populateInfoWindow(this, largeInfowindow);
+
+            for (var j=0; j<markers.length; j++){
+              markers[j].setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+              markers[j].setAnimation(null);
+            }
+
+            this.setAnimation(google.maps.Animation.BOUNCE);
+            this.setIcon('http://maps.google.com/mapfiles/ms/icons/yellow-dot.png');
         });
 
     }
@@ -171,7 +265,7 @@ function initMap() {
                 success: function(data) {
                     // do something with data
                     // console.log(data);
-                    infowindow.setContent('<div>' + marker.title + '</div><a href="' + data[3][0] + '">' + data[1][0] + '</a><p>' + data[2][0] + '</p>');
+                    infowindow.setContent('<div>' + marker.title + '</div><a target="_blank" href="' + data[3][0] + '">' + data[1][0] + '</a><p>' + data[2][0] + '</p>');
 
                     //clear the timeout message if the AJAX runs successfully
                     clearTimeout(wikiRequestTimout);
@@ -196,9 +290,56 @@ function initMap() {
         }
         map.fitBounds(bounds);
 
-        for (i = 0; i < initialLocations.length; i++) {
-            document.getElementById('place' + i).addEventListener('click', selectingPlace);
-        }
+    }
+
+    document.getElementById("districtMenu").addEventListener('change',changeDistrict);
+
+    function changeDistrict() {
+
+      marker.setMap(null);
+      var changes = document.getElementById("districtMenu").value;
+      switch(changes){
+        case "All":
+
+          break;
+        case "Hong Kong Island":
+
+          break;
+        case "Hong Kong Island":
+
+          break;
+        case "Hong Kong Island":
+
+          break;
+
+      }
+
+      var bounds = new google.maps.LatLngBounds();
+      // Extend the boundaries of the map for each marker and display the marker
+      for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(map);
+          bounds.extend(markers[i].position);
+      }
+      map.fitBounds(bounds);
+
+    }
+
+    //Event Listener for click the list
+    for (i = 0; i < allLocations.length; i++) {
+        document.getElementById('place' + i).addEventListener('click', function(numCopy) {
+          return function() {
+            // alert(numCopy);
+            populateInfoWindow(markers[numCopy], largeInfowindow);
+
+            for (var j=0; j<markers.length; j++){
+              markers[j].setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+              markers[j].setAnimation(null);
+            }
+
+            markers[numCopy].setAnimation(google.maps.Animation.BOUNCE);
+            markers[numCopy].setIcon('http://maps.google.com/mapfiles/ms/icons/yellow-dot.png');
+          };
+        }(i));
     }
 
     // This function will loop through the listings and hide them all.
@@ -209,24 +350,13 @@ function initMap() {
         }
     }
 
-    //filter the selected place from the list
-    function selectingPlace() {
-        for (var i = 0; i < markers.length; i++) {
-            markers[i].setMap(null);
-        }
-
-        marker.setMap(null);
-
-        marker = new google.maps.Marker({
-            animation: google.maps.Animation.BOUNCE,
-            position: selectedMarker.location,
-            // on the map, and give it your own title!
-            title: selectedMarker.title,
-            icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
-        });
-
-        marker.setMap(map);
-
-        populateInfoWindow(marker, largeInfowindow);
-    }
 }
+
+function googleError(){
+    alert('SorryGoogle Maps cannot be loaded, please refresh the page and try again.');
+};
+
+// function selectDistrict() {
+//   var e = document.getElementById("district");
+//   alert(e.options[e.selectedIndex].value)
+// }
